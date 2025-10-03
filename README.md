@@ -1,40 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Personal Full-Stack con Panel de Admin
+Este repositorio contiene el código fuente de un portfolio web personal, diseñado para ser moderno, rápido, dinámico y fácil de mantener a través de un panel de administración personalizado.
 
-## Getting Started
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Características Principales
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Contenido 100% dinamico:** Toda la información (perfil, proyectos, formación, etc.) se obtiene en tiempo real desde una base de datos MongoDB.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- **Arquitectura Full-Stack con Next.js:** Utiliza Next.js tanto para el frontend (con renderizado del lado del servidor para un rendimiento óptimo) como para el backend (a través de API Routes).
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- **Panel de Administración (CMS):** Incluye una sección `/admin` privada para realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sobre todo el contenido del sitio sin necesidad de tocar el código.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+- **Autenticación Segura:** El panel de administración está protegido por un sistema de autenticación basado en JWT (JSON Web Tokens) y cookies httpOnly.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Gestión de Imágenes en la Nube:** Las imágenes (como los certificados) se suben a Cloudinary, optimizando su almacenamiento y entrega a través de una CDN global.
 
-## Learn More
+- **Diseño Moderno y Responsivo:** La interfaz está construida con Tailwind CSS, siguiendo una línea de diseño moderna y adaptándose perfectamente a cualquier dispositivo (móvil, tablet, escritorio).
 
-To learn more about Next.js, take a look at the following resources:
+## Stack Tecnológico
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+**Framework Principal:** Next.js (con React 18)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Lenguaje:** TypeScript
 
-## Deploy on Vercel
+**Base de Datos:** MongoDB Atlas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**ORM / Conector DB:** Mongoose
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+**Estilos:** Tailwind CSS
+
+**Backend (API):** Next.js API Routes
+
+**Autenticación:** JWT (con la librería jose), Cookies
+
+**Gestión de Imágenes:** Cloudinary (almacenamiento) y Multer (procesamiento de subida)
+
+**Íconos:** React Icons
+
+
+## Estructura del Proyecto
+
+El código está organizado de manera modular para facilitar su mantenimiento y escalabilidad:
+
+`/src/components`: Contiene todos los componentes reutilizables de React, divididos en:
+
+`/layout`: Componentes estructurales como Header, Footer y Layout.
+
+`/admin`: Formularios y componentes específicos para el panel de administración.
+
+`/src/lib`: Helpers y funciones auxiliares, como el conector a la base de datos (mongodb.ts) y la lógica de sincronización de aptitudes.
+
+`/src/models`: Define los esquemas de datos de Mongoose y los tipos de TypeScript para cada colección de la base de datos (Profile, Projects, Formation).
+
+`/src/pages`: Contiene todas las rutas de la aplicación.
+
+`/index.tsx`, `/proyectos.tsx`, etc.: Páginas públicas del portfolio.
+
+`/admin`: Todas las páginas relacionadas con el panel de administración.
+
+`/api`: Todos los endpoints del backend que manejan la lógica de negocio (CRUD, login, subida de imágenes).
+
+`/middleware.ts`: Middleware de Next.js que protege las rutas del panel de administración, verificando el token de autenticación en cada petición.
