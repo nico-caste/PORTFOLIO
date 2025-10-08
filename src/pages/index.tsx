@@ -37,7 +37,6 @@ export default function HomePage({ profile, formations }: HomePageProps) {
           <div className="bg-surface border border-primary rounded-lg p-6 shadow-lg">
             <h2 className="text-3xl font-bold mb-4">Certificaciones Destacadas</h2>
             <div className="flex flex-wrap gap-4">
-              {/* 👇 LA CORRECCIÓN ESTÁ AQUÍ */}
               {formationsWithCerts.map((cert: FormationData) => (
                 <a 
                   key={cert._id} 
@@ -108,13 +107,11 @@ export default function HomePage({ profile, formations }: HomePageProps) {
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    // Hacemos las peticiones en paralelo para mayor eficiencia
     const [profileRes, formationsRes] = await Promise.all([
       fetch(`${baseUrl}/api/profile`),
       fetch(`${baseUrl}/api/formation`),
     ]);
 
-    // Procesamos las respuestas
     const profileJson = await profileRes.json();
     const formationsJson = await formationsRes.json();
 

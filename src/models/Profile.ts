@@ -16,6 +16,7 @@ export type ProfileData = {
 };
 
 export interface IProfile extends Document {
+  _id: string;
   fullName: string;
   locality: string;
   aboutSummary: string;

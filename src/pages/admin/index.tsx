@@ -17,7 +17,6 @@ export default function AdminLogin() {
     });
 
     if (res.ok) {
-      // Si el login es exitoso, redirigimos al dashboard
       router.push('/admin/dashboard');
     } else {
       setError('Contraseña incorrecta.');

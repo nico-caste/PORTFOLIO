@@ -19,7 +19,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       break;
     case 'PUT':
       try {
-        // Usamos findByIdAndUpdate para actualizar el único documento de perfil
         const profile = await Profile.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         if (!profile) return res.status(404).json({ success: false });
         res.status(200).json({ success: true, data: profile });
@@ -29,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       break;
     default:
-      // No implementamos DELETE para el perfil
       res.setHeader('Allow', ['GET', 'PUT']);
       res.status(405).end(`Method ${method} Not Allowed`);
       break;
