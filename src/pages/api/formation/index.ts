@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
-        const formations = await Formation.find({}).sort({ startDate: -1 });
+        const formations = await Formation.find({}).sort({ startDate: -1 }).lean();
         res.status(200).json({ success: true, data: formations });
       } catch (error) {
         console.error(error);

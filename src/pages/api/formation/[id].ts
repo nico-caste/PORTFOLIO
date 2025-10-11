@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
-        const formation = await Formation.findById(id);
+        const formation = await Formation.findById(id).lean();
         if (!formation) return res.status(404).json({ success: false });
         res.status(200).json({ success: true, data: formation });
       } catch (error) {

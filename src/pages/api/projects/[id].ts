@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
-        const project = await Project.findById(id);
+        const project = await Project.findById(id).lean();
         if (!project) return res.status(404).json({ success: false });
         res.status(200).json({ success: true, data: project });
       } catch (error) {

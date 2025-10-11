@@ -6,9 +6,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await dbConnect();
 
   try {
-    const profileData = await Profile.findOne({}); 
+    const profileData = await Profile.findOne({}).lean();
     if (!profileData) {
-      return res.status(404).json({ success: false, message: 'Profile not found' });
+      return res.status(404).json({ success: false, message: 'Perfil no encontrado' });
     }
     res.status(200).json({ success: true, data: profileData });
   } catch (error) {

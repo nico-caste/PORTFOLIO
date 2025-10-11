@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
-        const projects = await Project.find({});
+        const projects = await Project.find({}).lean();
         res.status(200).json({ success: true, data: projects });
       } catch (error) {
         res.status(400).json({ success: false });
