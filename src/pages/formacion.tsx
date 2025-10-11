@@ -71,7 +71,7 @@ export const getStaticProps: GetStaticProps = async () => {
     await formationApiHandler(req, res);
 
     return {
-      props: { formations: formationsData },
+      props: {formations: JSON.parse(JSON.stringify(formationsData)),},
       revalidate: 60,
     };
   } catch (error) {

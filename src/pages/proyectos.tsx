@@ -73,8 +73,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
     return {
       props: { 
-        projects: projectsData,
-        profile: profileData,
+        projects: JSON.parse(JSON.stringify(projectsData)),
+        profile: JSON.parse(JSON.stringify(profileData)),
       },
       revalidate: 60,
     };

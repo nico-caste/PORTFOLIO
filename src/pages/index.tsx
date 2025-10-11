@@ -136,8 +136,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
     
     return {
       props: {
-        profile: profileData,
-        formations: formationsData,
+        profile: JSON.parse(JSON.stringify(profileData)),
+        formations: JSON.parse(JSON.stringify(formationsData)),
       },
     };
   } catch (error) {
