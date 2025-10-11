@@ -4,6 +4,10 @@ import { ProfileData } from '../models/Profile';
 import dbConnect from '../lib/mongodb';
 import Project from '../models/Projects';
 import Profile from '../models/Profile';
+import mongoose from 'mongoose';
+
+type LeanProject = Omit<ProjectData, '_id'> & { _id: mongoose.Types.ObjectId };
+type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
 
 
 interface ProjectsPageProps {
@@ -56,13 +60,23 @@ export const getStaticProps: GetStaticProps = async () => {
   try {
     await dbConnect();
     
-    const projectsResult = await Project.find({}).sort({ createdAt: -1 }).lean();
-    const profileResult = await Profile.findOne({}).lean();
+    const projectsResult = await Project.find({}).sort({ createdAt: -1 }).lean() as unknown as LeanProject[];
+    const profileResult = await Profile.findOne({}).lean() as unknown as LeanProfile | null;
+
+    const serializableProjects = projectsResult.map(project => ({
+      ...project,
+      _id: project._id.toString(),
+    }));
+
+    const serializableProfile = profileResult ? {
+      ...profileResult,
+      _id: profileResult._id.toString(),
+    } : null;
 
     return {
       props: { 
-        projects: JSON.parse(JSON.stringify(projectsResult)),
-        profile: JSON.parse(JSON.stringify(profileResult)),
+        projects: serializableProjects,
+        profile: serializableProfile,
       },
       revalidate: 60,
     };

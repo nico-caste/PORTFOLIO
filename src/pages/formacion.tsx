@@ -2,6 +2,13 @@ import { GetStaticProps, NextPage } from 'next';
 import { FormationData } from '../models/Formation';
 import dbConnect from '../lib/mongodb';
 import Formation from '../models/Formation';
+import mongoose from 'mongoose';
+
+type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
+  _id: mongoose.Types.ObjectId;
+  startDate: Date;
+  endDate?: Date;
+};
 
 interface FormationPageProps {
   formations: FormationData[];
@@ -60,16 +67,18 @@ const FormationPage: NextPage<FormationPageProps> = ({ formations }) => {
 export const getStaticProps: GetStaticProps = async () => {
   try {
     await dbConnect();
-    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean();
+    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean() as unknown as LeanFormation[];
 
-    return {
-      props: { 
-        formations: JSON.parse(JSON.stringify(formationsResult)) 
-      },
-      revalidate: 60,
-    };
+    const serializableFormations = formationsResult.map(formation => ({
+      ...formation,
+      _id: formation._id.toString(),
+      startDate: formation.startDate.toISOString(),
+      endDate: formation.endDate ? formation.endDate.toISOString() : undefined,
+    }));
+
+    return { props: { formations: serializableFormations }, revalidate: 60 };
   } catch (error) {
-    console.error("Error al obtener los datos de la página de formación:", error);
+    console.error("Failed to fetch data for formation page:", error);
     return { props: { formations: [] } };
   }
 };

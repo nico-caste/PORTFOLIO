@@ -5,7 +5,15 @@ import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi'
 import { FormationData } from '../models/Formation';
 import dbConnect from '../lib/mongodb';
 import Profile from '../models/Profile';
-import Formation from '../models/Formation'; 
+import Formation from '../models/Formation';
+import mongoose from 'mongoose';
+
+type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
+type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
+  _id: mongoose.Types.ObjectId;
+  startDate: Date;
+  endDate?: Date;
+};
 
 
 interface HomePageProps {
@@ -111,17 +119,24 @@ export default function HomePage({ profile, formations }: HomePageProps) {
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
     await dbConnect();
-    const profileResult = await Profile.findOne({}).lean();
-    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean();
+    const profileResult = await Profile.findOne({}).lean() as unknown as LeanProfile | null;
+    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean() as unknown as LeanFormation[];
     
-    return {
-      props: {
-        profile: JSON.parse(JSON.stringify(profileResult)),
-        formations: JSON.parse(JSON.stringify(formationsResult)),
-      },
-    };
+    const serializableProfile = profileResult ? {
+      ...profileResult,
+      _id: profileResult._id.toString(),
+    } : null;
+
+    const serializableFormations = formationsResult.map(formation => ({
+      ...formation,
+      _id: formation._id.toString(),
+      startDate: formation.startDate.toISOString(),
+      endDate: formation.endDate ? formation.endDate.toISOString() : undefined,
+    }));
+
+    return { props: { profile: serializableProfile, formations: serializableFormations } };
   } catch (error) {
-    console.error("Error al obtener los datos de la página de inicio:", error);
+    console.error("Failed to fetch data for homepage:", error);
     return { props: { profile: null, formations: [] } };
   }
 };
