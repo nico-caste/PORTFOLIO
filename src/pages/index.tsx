@@ -3,12 +3,10 @@ import Image from 'next/image';
 import { ProfileData } from '../models/Profile';
 import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi';
 import { FormationData } from '../models/Formation';
-import profileApiHandler from './api/profile';
-import formationApiHandler from './api/formation';
-import { NextApiRequest, NextApiResponse } from 'next';
+import dbConnect from '../lib/mongodb';
+import Profile from '../models/Profile';
+import Formation from '../models/Formation'; 
 
-type ProfileApiResponse = { success: boolean; data?: ProfileData };
-type FormationApiResponse = { success: boolean; data?: FormationData[] };
 
 interface HomePageProps {
   profile: ProfileData | null;
@@ -112,32 +110,14 @@ export default function HomePage({ profile, formations }: HomePageProps) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
-    let profileData: ProfileData | null = null;
-    let formationsData: FormationData[] = [];
-    const req = { method: 'GET' } as NextApiRequest;
-
-    const profileRes = {
-      status: (code: number) => ({
-        json: (body: ProfileApiResponse) => {
-          if (code === 200) profileData = body.data || null;
-        },
-      }),
-    } as unknown as NextApiResponse;
-    await profileApiHandler(req, profileRes);
-
-    const formationRes = {
-      status: (code: number) => ({
-        json: (body: FormationApiResponse) => {
-          if (code === 200) formationsData = body.data || [];
-        },
-      }),
-    } as unknown as NextApiResponse;
-    await formationApiHandler(req, formationRes);
+    await dbConnect();
+    const profileResult = await Profile.findOne({}).lean();
+    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean();
     
     return {
       props: {
-        profile: JSON.parse(JSON.stringify(profileData)),
-        formations: JSON.parse(JSON.stringify(formationsData)),
+        profile: JSON.parse(JSON.stringify(profileResult)),
+        formations: JSON.parse(JSON.stringify(formationsResult)),
       },
     };
   } catch (error) {

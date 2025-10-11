@@ -1,9 +1,7 @@
 import { GetStaticProps, NextPage } from 'next';
 import { FormationData } from '../models/Formation';
-import formationApiHandler from './api/formation';
-import { NextApiRequest, NextApiResponse } from 'next';
-
-type FormationApiResponse = { success: boolean; data?: FormationData[] };
+import dbConnect from '../lib/mongodb';
+import Formation from '../models/Formation';
 
 interface FormationPageProps {
   formations: FormationData[];
@@ -61,21 +59,17 @@ const FormationPage: NextPage<FormationPageProps> = ({ formations }) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    let formationsData: FormationData[] = [];
-
-    const req = { method: 'GET' } as NextApiRequest;
-    const res = {
-      status: () => ({ json: (body: FormationApiResponse) => { formationsData = body.data || []; } }),
-    } as unknown as NextApiResponse;
-
-    await formationApiHandler(req, res);
+    await dbConnect();
+    const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean();
 
     return {
-      props: {formations: JSON.parse(JSON.stringify(formationsData)),},
+      props: { 
+        formations: JSON.parse(JSON.stringify(formationsResult)) 
+      },
       revalidate: 60,
     };
   } catch (error) {
-    console.error("Failed to fetch data for formation page:", error);
+    console.error("Error al obtener los datos de la página de formación:", error);
     return { props: { formations: [] } };
   }
 };

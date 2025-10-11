@@ -1,12 +1,10 @@
 import { GetStaticProps, NextPage } from 'next';
 import { ProjectData } from '../models/Projects';
 import { ProfileData } from '../models/Profile';
-import projectsApiHandler from './api/projects';
-import profileApiHandler from './api/profile';
-import { NextApiRequest, NextApiResponse } from 'next';
+import dbConnect from '../lib/mongodb';
+import Project from '../models/Projects';
+import Profile from '../models/Profile';
 
-type ProjectsApiResponse = { success: boolean; data?: ProjectData[] };
-type ProfileApiResponse = { success: boolean; data?: ProfileData };
 
 interface ProjectsPageProps {
   projects: ProjectData[];
@@ -56,30 +54,20 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, profile }) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    let projectsData: ProjectData[] = [];
-    let profileData: ProfileData | null = null;
-
-    const req = { method: 'GET' } as NextApiRequest;
-
-    const projectsRes = {
-      status: () => ({ json: (body: ProjectsApiResponse) => { projectsData = body.data || []; } }),
-    } as unknown as NextApiResponse;
-    await projectsApiHandler(req, projectsRes);
+    await dbConnect();
     
-    const profileRes = {
-      status: () => ({ json: (body: ProfileApiResponse) => { profileData = body.data || null; } }),
-    } as unknown as NextApiResponse;
-    await profileApiHandler(req, profileRes);
+    const projectsResult = await Project.find({}).sort({ createdAt: -1 }).lean();
+    const profileResult = await Profile.findOne({}).lean();
 
     return {
       props: { 
-        projects: JSON.parse(JSON.stringify(projectsData)),
-        profile: JSON.parse(JSON.stringify(profileData)),
+        projects: JSON.parse(JSON.stringify(projectsResult)),
+        profile: JSON.parse(JSON.stringify(profileResult)),
       },
       revalidate: 60,
     };
   } catch (error) {
-    console.error("Failed to fetch data for projects page:", error);
+    console.error("Error al obtener los datos de la página de proyectos:", error);
     return { props: { projects: [], profile: null } };
   }
 };
