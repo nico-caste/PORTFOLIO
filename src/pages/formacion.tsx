@@ -1,5 +1,9 @@
 import { GetStaticProps, NextPage } from 'next';
 import { FormationData } from '../models/Formation';
+import formationApiHandler from './api/formation';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+type FormationApiResponse = { success: boolean; data?: FormationData[] };
 
 interface FormationPageProps {
   formations: FormationData[];
@@ -57,16 +61,22 @@ const FormationPage: NextPage<FormationPageProps> = ({ formations }) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const res = await fetch(`${baseUrl}/api/formation`);
-    const { data } = await res.json();
+    let formationsData: FormationData[] = [];
+
+    const req = {} as NextApiRequest;
+    const res = {
+      status: () => ({ json: (body: FormationApiResponse) => { formationsData = body.data || []; } }),
+    } as unknown as NextApiResponse;
+
+    await formationApiHandler(req, res);
+
     return {
-      props: { formations: data },
+      props: { formations: formationsData },
       revalidate: 60,
     };
   } catch (error) {
+    console.error("Failed to fetch data for formation page:", error);
     return { props: { formations: [] } };
-    console.error('Error fetching formations:', error);
   }
 };
 

@@ -20,7 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'POST':
       try {
         const { name } = req.body;
-        // Creamos un slug a partir del nombre para la URL
         const slug = slugify(name, { lower: true, strict: true });
         const project = await Project.create({ ...req.body, slug });
         res.status(201).json({ success: true, data: project });

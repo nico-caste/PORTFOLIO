@@ -3,9 +3,17 @@ import type { AppContext, AppProps } from 'next/app';
 import App from 'next/app';
 import { Layout } from '../components/layout/Layout';
 import { IProfile } from '../models/Profile';
+import profileApiHandler from './api/profile';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+type ProfileApiResponse = {
+  success: boolean;
+  data?: IProfile;
+  message?: string;
+};
 
 interface MyAppProps extends AppProps {
-  profileData: IProfile | null; // Puede ser null si la API falla
+  profileData: IProfile | null;
 }
 
 function MyApp({ Component, pageProps, profileData }: MyAppProps) {
@@ -18,25 +26,28 @@ function MyApp({ Component, pageProps, profileData }: MyAppProps) {
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
   const appProps = await App.getInitialProps(appContext);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  console.log('Intentando conectar a:', `${baseUrl}/api/profile`);
   try {
-    const res = await fetch(`${baseUrl}/api/profile`);
-    if (!res.ok) {
-      console.error('Failed to fetch profile data:', res.statusText);
-      return { ...appProps, profileData: null };
-    }
+    let profileData = null;
+    const req = {} as NextApiRequest;
+    const res = {
+      status: (code: number) => ({
+        json: (body: ProfileApiResponse) => {
+          if (code === 200 && body.success) {
+            profileData = body.data || null;
+          }
+        },
+      }),
+    } as unknown as NextApiResponse;
     
-    const profileResponse = await res.json();
-    
+    await profileApiHandler(req, res);
+
     return {
       ...appProps,
-      profileData: profileResponse.data,
+      profileData,
     };
-
   } catch (error) {
-    console.error('An error occurred while fetching profile data:', error);
+    console.error('Ocurrió un error al obtener los datos del perfil en _app:', error);
     return { ...appProps, profileData: null };
   }
 };

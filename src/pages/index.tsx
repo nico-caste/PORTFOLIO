@@ -3,6 +3,12 @@ import Image from 'next/image';
 import { ProfileData } from '../models/Profile';
 import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi';
 import { FormationData } from '../models/Formation';
+import profileApiHandler from './api/profile';
+import formationApiHandler from './api/formation';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+type ProfileApiResponse = { success: boolean; data?: ProfileData };
+type FormationApiResponse = { success: boolean; data?: FormationData[] };
 
 interface HomePageProps {
   profile: ProfileData | null;
@@ -106,23 +112,36 @@ export default function HomePage({ profile, formations }: HomePageProps) {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const [profileRes, formationsRes] = await Promise.all([
-      fetch(`${baseUrl}/api/profile`),
-      fetch(`${baseUrl}/api/formation`),
-    ]);
+    let profileData: ProfileData | null = null;
+    let formationsData: FormationData[] = [];
+    const req = {} as NextApiRequest;
 
-    const profileJson = await profileRes.json();
-    const formationsJson = await formationsRes.json();
+    const profileRes = {
+      status: (code: number) => ({
+        json: (body: ProfileApiResponse) => {
+          if (code === 200) profileData = body.data || null;
+        },
+      }),
+    } as unknown as NextApiResponse;
+    await profileApiHandler(req, profileRes);
 
+    const formationRes = {
+      status: (code: number) => ({
+        json: (body: FormationApiResponse) => {
+          if (code === 200) formationsData = body.data || [];
+        },
+      }),
+    } as unknown as NextApiResponse;
+    await formationApiHandler(req, formationRes);
+    
     return {
       props: {
-        profile: profileJson.data || null,
-        formations: formationsJson.data || [],
+        profile: profileData,
+        formations: formationsData,
       },
     };
   } catch (error) {
-    console.error("Failed to fetch data for homepage:", error);
+    console.error("Error al obtener los datos de la página de inicio:", error);
     return { props: { profile: null, formations: [] } };
   }
 };

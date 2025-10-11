@@ -1,6 +1,12 @@
 import { GetStaticProps, NextPage } from 'next';
 import { ProjectData } from '../models/Projects';
 import { ProfileData } from '../models/Profile';
+import projectsApiHandler from './api/projects';
+import profileApiHandler from './api/profile';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+type ProjectsApiResponse = { success: boolean; data?: ProjectData[] };
+type ProfileApiResponse = { success: boolean; data?: ProfileData };
 
 interface ProjectsPageProps {
   projects: ProjectData[];
@@ -50,24 +56,30 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, profile }) => {
 
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const [projectsRes, profileRes] = await Promise.all([
-      fetch(`${baseUrl}/api/projects`),
-      fetch(`${baseUrl}/api/profile`),
-    ]);
+    let projectsData: ProjectData[] = [];
+    let profileData: ProfileData | null = null;
 
-    const projectsJson = await projectsRes.json();
-    const profileJson = await profileRes.json();
+    const req = {} as NextApiRequest;
+
+    const projectsRes = {
+      status: () => ({ json: (body: ProjectsApiResponse) => { projectsData = body.data || []; } }),
+    } as unknown as NextApiResponse;
+    await projectsApiHandler(req, projectsRes);
+    
+    const profileRes = {
+      status: () => ({ json: (body: ProfileApiResponse) => { profileData = body.data || null; } }),
+    } as unknown as NextApiResponse;
+    await profileApiHandler(req, profileRes);
 
     return {
       props: { 
-        projects: projectsJson.data || [],
-        profile: profileJson.data || null,
+        projects: projectsData,
+        profile: profileData,
       },
       revalidate: 60,
     };
   } catch (error) {
-    console.error('Error fetching projects or profile:', error);
+    console.error("Failed to fetch data for projects page:", error);
     return { props: { projects: [], profile: null } };
   }
 };
