@@ -114,7 +114,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   try {
     let profileData: ProfileData | null = null;
     let formationsData: FormationData[] = [];
-    const req = {} as NextApiRequest;
+    const req = { method: 'GET' } as NextApiRequest;
 
     const profileRes = {
       status: (code: number) => ({

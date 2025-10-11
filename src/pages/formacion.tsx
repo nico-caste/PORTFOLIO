@@ -63,7 +63,7 @@ export const getStaticProps: GetStaticProps = async () => {
   try {
     let formationsData: FormationData[] = [];
 
-    const req = {} as NextApiRequest;
+    const req = { method: 'GET' } as NextApiRequest;
     const res = {
       status: () => ({ json: (body: FormationApiResponse) => { formationsData = body.data || []; } }),
     } as unknown as NextApiResponse;

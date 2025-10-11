@@ -29,7 +29,7 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
 
   try {
     let profileData = null;
-    const req = {} as NextApiRequest;
+    const req = { method: 'GET' } as NextApiRequest;
     const res = {
       status: (code: number) => ({
         json: (body: ProfileApiResponse) => {

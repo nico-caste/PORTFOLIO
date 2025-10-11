@@ -59,7 +59,7 @@ export const getStaticProps: GetStaticProps = async () => {
     let projectsData: ProjectData[] = [];
     let profileData: ProfileData | null = null;
 
-    const req = {} as NextApiRequest;
+    const req = { method: 'GET' } as NextApiRequest;
 
     const projectsRes = {
       status: () => ({ json: (body: ProjectsApiResponse) => { projectsData = body.data || []; } }),
