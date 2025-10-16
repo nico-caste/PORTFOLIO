@@ -1,15 +1,5 @@
 import { GetStaticProps, NextPage } from 'next';
 import { FormationData } from '../models/Formation';
-// import dbConnect from '../lib/mongodb';
-// import Formation from '../models/Formation';
-// import mongoose from 'mongoose';
-
-// type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
-//   _id: mongoose.Types.ObjectId;
-//   startDate: Date;
-//   endDate?: Date;
-// };
-
 import type { Types } from 'mongoose';
 
 type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 

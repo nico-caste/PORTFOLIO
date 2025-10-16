@@ -3,18 +3,6 @@ import Image from 'next/image';
 import { ProfileData } from '../models/Profile';
 import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi';
 import { FormationData } from '../models/Formation';
-// import dbConnect from '../lib/mongodb';
-// import Profile from '../models/Profile';
-// import Formation from '../models/Formation';
-// import mongoose from 'mongoose';
-
-// type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
-// type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
-//   _id: mongoose.Types.ObjectId;
-//   startDate: Date;
-//   endDate?: Date;
-// };
-
 import type { Types } from 'mongoose';
 
 type LeanProfile = Omit<ProfileData, '_id'> & { _id: Types.ObjectId };

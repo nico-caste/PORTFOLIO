@@ -1,17 +1,10 @@
 import { GetStaticProps, NextPage } from 'next';
 import { ProjectData } from '../models/Projects';
 import { ProfileData } from '../models/Profile';
-// import dbConnect from '../lib/mongodb';
-// import Project from '../models/Projects';
-// import Profile from '../models/Profile';
-// import mongoose from 'mongoose';
 import type { Types } from 'mongoose';
 
-// type LeanProject = Omit<ProjectData, '_id'> & { _id: mongoose.Types.ObjectId };
-// type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
 type LeanProject = Omit<ProjectData, '_id'> & { _id: Types.ObjectId };
 type LeanProfile = Omit<ProfileData, '_id'> & { _id: Types.ObjectId };
-
 
 interface ProjectsPageProps {
   projects: ProjectData[];
