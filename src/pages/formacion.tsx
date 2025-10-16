@@ -1,11 +1,19 @@
 import { GetStaticProps, NextPage } from 'next';
 import { FormationData } from '../models/Formation';
-import dbConnect from '../lib/mongodb';
-import Formation from '../models/Formation';
-import mongoose from 'mongoose';
+// import dbConnect from '../lib/mongodb';
+// import Formation from '../models/Formation';
+// import mongoose from 'mongoose';
+
+// type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
+//   _id: mongoose.Types.ObjectId;
+//   startDate: Date;
+//   endDate?: Date;
+// };
+
+import type { Types } from 'mongoose';
 
 type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
-  _id: mongoose.Types.ObjectId;
+  _id: Types.ObjectId;
   startDate: Date;
   endDate?: Date;
 };
@@ -65,6 +73,9 @@ const FormationPage: NextPage<FormationPageProps> = ({ formations }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
+  const dbConnect = (await import('../lib/mongodb')).default;
+  const Formation = (await import('../models/Formation')).default;
+
   try {
     await dbConnect();
     const formationsResult = await Formation.find({}).sort({ startDate: -1 }).lean() as unknown as LeanFormation[];

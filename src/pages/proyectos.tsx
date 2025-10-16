@@ -1,13 +1,16 @@
 import { GetStaticProps, NextPage } from 'next';
 import { ProjectData } from '../models/Projects';
 import { ProfileData } from '../models/Profile';
-import dbConnect from '../lib/mongodb';
-import Project from '../models/Projects';
-import Profile from '../models/Profile';
-import mongoose from 'mongoose';
+// import dbConnect from '../lib/mongodb';
+// import Project from '../models/Projects';
+// import Profile from '../models/Profile';
+// import mongoose from 'mongoose';
+import type { Types } from 'mongoose';
 
-type LeanProject = Omit<ProjectData, '_id'> & { _id: mongoose.Types.ObjectId };
-type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
+// type LeanProject = Omit<ProjectData, '_id'> & { _id: mongoose.Types.ObjectId };
+// type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
+type LeanProject = Omit<ProjectData, '_id'> & { _id: Types.ObjectId };
+type LeanProfile = Omit<ProfileData, '_id'> & { _id: Types.ObjectId };
 
 
 interface ProjectsPageProps {
@@ -57,6 +60,10 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, profile }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
+  const dbConnect = (await import('../lib/mongodb')).default;
+  const Project = (await import('../models/Projects')).default;
+  const Profile = (await import('../models/Profile')).default;
+
   try {
     await dbConnect();
     
@@ -73,15 +80,9 @@ export const getStaticProps: GetStaticProps = async () => {
       _id: profileResult._id.toString(),
     } : null;
 
-    return {
-      props: { 
-        projects: serializableProjects,
-        profile: serializableProfile,
-      },
-      revalidate: 60,
-    };
+    return { props: { projects: serializableProjects, profile: serializableProfile }, revalidate: 60 };
   } catch (error) {
-    console.error("Error al obtener los datos de la página de proyectos:", error);
+    console.error("Failed to fetch data for projects page:", error);
     return { props: { projects: [], profile: null } };
   }
 };

@@ -3,18 +3,26 @@ import Image from 'next/image';
 import { ProfileData } from '../models/Profile';
 import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi';
 import { FormationData } from '../models/Formation';
-import dbConnect from '../lib/mongodb';
-import Profile from '../models/Profile';
-import Formation from '../models/Formation';
-import mongoose from 'mongoose';
+// import dbConnect from '../lib/mongodb';
+// import Profile from '../models/Profile';
+// import Formation from '../models/Formation';
+// import mongoose from 'mongoose';
 
-type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
+// type LeanProfile = Omit<ProfileData, '_id'> & { _id: mongoose.Types.ObjectId };
+// type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
+//   _id: mongoose.Types.ObjectId;
+//   startDate: Date;
+//   endDate?: Date;
+// };
+
+import type { Types } from 'mongoose';
+
+type LeanProfile = Omit<ProfileData, '_id'> & { _id: Types.ObjectId };
 type LeanFormation = Omit<FormationData, '_id' | 'startDate' | 'endDate'> & { 
-  _id: mongoose.Types.ObjectId;
+  _id: Types.ObjectId;
   startDate: Date;
   endDate?: Date;
 };
-
 
 interface HomePageProps {
   profile: ProfileData | null;
@@ -117,6 +125,10 @@ export default function HomePage({ profile, formations }: HomePageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
+  const dbConnect = (await import('../lib/mongodb')).default;
+  const Profile = (await import('../models/Profile')).default;
+  const Formation = (await import('../models/Formation')).default;
+  
   try {
     await dbConnect();
     const profileResult = await Profile.findOne({}).lean() as unknown as LeanProfile | null;
