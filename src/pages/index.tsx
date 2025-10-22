@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { ProfileData } from '../models/Profile';
 import { FiMail, FiPhone, FiLinkedin, FiGithub, FiMapPin } from 'react-icons/fi';
 import { FormationData } from '../models/Formation';
+import DOMPurify from 'isomorphic-dompurify';
 import type { Types } from 'mongoose';
 
 type LeanProfile = Omit<ProfileData, '_id'> & { _id: Types.ObjectId };
@@ -36,7 +37,7 @@ export default function HomePage({ profile, formations }: HomePageProps) {
             <span>{profile.locality}</span>
           </div>
           <div className="prose prose-invert prose-lg max-w-none text-text-main">
-            <p>{profile.aboutSummary}</p>
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(profile.aboutSummary) }} />
           </div>
         </div>
 

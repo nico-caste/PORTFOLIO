@@ -1,5 +1,9 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import { type ProjectData } from '../../models/Projects';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
+import StarterKit from '@tiptap/starter-kit';
 
 export type ProjectFormData = Omit<ProjectData, '_id' | 'slug'>;
 
@@ -10,18 +14,27 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm = ({ onSubmit, initialData, isSaving }: ProjectFormProps) => {
-  const [formData, setFormData] = useState<ProjectFormData>({
+  const [formData, setFormData] = useState({
     name: initialData?.name || '',
-    description: initialData?.description || '',
     repositoryUrl: initialData?.repositoryUrl || '',
     deployUrl: initialData?.deployUrl || '',
     technologies: initialData?.technologies || [],
   });
+  
+  const editor = useEditor({
+    extensions: [ StarterKit, BubbleMenuExtension ],
+    content: initialData?.description || '',
+    editorProps: {
+      attributes: {
+        class: 'tiptap-editor',
+      },
+    },
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === 'technologies') {
-      setFormData(prev => ({ ...prev, [name]: value.split(',').map(t => t.trim()) }));
+      setFormData(prev => ({ ...prev, [name]: value.split(',').map(t => t.trim()).filter(Boolean) }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -29,7 +42,13 @@ export const ProjectForm = ({ onSubmit, initialData, isSaving }: ProjectFormProp
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!editor) return;
+
+    const finalData: ProjectFormData = {
+      ...formData,
+      description: editor.getHTML(),
+    };
+    onSubmit(finalData);
   };
 
   return (
@@ -40,8 +59,13 @@ export const ProjectForm = ({ onSubmit, initialData, isSaving }: ProjectFormProp
       </div>
       <div>
         <label htmlFor="description" className="block mb-1">Descripción</label>
-        <textarea name="description" id="description" value={formData.description} onChange={handleChange} required className="w-full p-2 rounded bg-gray-700 border-gray-600 border" rows={4} />
-      </div>
+          {editor && <BubbleMenu className="flex bg-gray-700 text-white p-1 rounded-lg shadow-xl border border-primary" editor={editor}>
+            <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'bg-accent text-background p-2 rounded' : 'p-2'}>Bold</button>
+            <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'bg-accent text-background p-2 rounded' : 'p-2'}>Italic</button>
+            <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive('heading', { level: 3 }) ? 'bg-accent text-background p-2 rounded' : 'p-2'}>H3</button>
+          </BubbleMenu>}
+          <EditorContent editor={editor} />
+        </div>
       <div>
         <label htmlFor="repositoryUrl" className="block mb-1">URL del Repositorio (GitHub)</label>
         <input type="text" name="repositoryUrl" id="repositoryUrl" value={formData.repositoryUrl} onChange={handleChange} required className="w-full p-2 rounded bg-gray-700 border-gray-600 border" />

@@ -1,5 +1,9 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { type ProfileData } from '../../models/Profile';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
+import StarterKit from '@tiptap/starter-kit';
 
 export type ProfileFormData = Omit<ProfileData, '_id'>;
 
@@ -22,6 +26,16 @@ export const ProfileForm = ({ onSubmit, initialData, isSaving }: ProfileFormProp
       github: '',
     },
     skills: initialData?.skills || [],
+  });
+
+  const editor = useEditor({
+    extensions: [StarterKit, BubbleMenuExtension],
+    content: initialData?.aboutSummary || '',
+    editorProps: {
+      attributes: {
+        class: 'tiptap-editor',
+      },
+    },
   });
 
   const [skillsInput, setSkillsInput] = useState(initialData?.skills?.join(', ') || '');
@@ -49,7 +63,12 @@ export const ProfileForm = ({ onSubmit, initialData, isSaving }: ProfileFormProp
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!editor) return;
+    const finalData: ProfileFormData = {
+      ...formData,
+      aboutSummary: editor.getHTML(),
+    };
+    onSubmit(finalData);
   };
 
   return (
@@ -64,8 +83,18 @@ export const ProfileForm = ({ onSubmit, initialData, isSaving }: ProfileFormProp
       </div>
       <div>
         <label htmlFor="aboutSummary" className="block mb-1">Resumen Acerca de Mí</label>
-        <textarea name="aboutSummary" id="aboutSummary" value={formData.aboutSummary} onChange={handleChange} required className="w-full p-2 rounded bg-gray-700 border-gray-600 border" rows={5} />
-      </div>
+          {editor && (
+            <BubbleMenu 
+              className="flex bg-gray-700 text-white p-1 rounded-lg shadow-xl border border-primary" 
+              editor={editor}
+            >
+              <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'bg-accent text-background p-2 rounded' : 'p-2'}>Bold</button>
+              <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'bg-accent text-background p-2 rounded' : 'p-2'}>Italic</button>
+              <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive('bulletList') ? 'bg-accent text-background p-2 rounded' : 'p-2'}>Lista</button>
+            </BubbleMenu>
+          )}
+          <EditorContent editor={editor} />
+        </div>
       <div>
         <label htmlFor="portfolioSummary" className="block mb-1">Resumen del Portfolio</label>
         <textarea name="portfolioSummary" id="portfolioSummary" value={formData.portfolioSummary} onChange={handleChange} required className="w-full p-2 rounded bg-gray-700 border-gray-600 border" rows={3} />

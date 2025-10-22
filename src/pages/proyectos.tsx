@@ -1,6 +1,7 @@
 import { GetStaticProps, NextPage } from 'next';
 import { ProjectData } from '../models/Projects';
 import { ProfileData } from '../models/Profile';
+import DOMPurify from 'isomorphic-dompurify';
 import type { Types } from 'mongoose';
 
 type LeanProject = Omit<ProjectData, '_id'> & { _id: Types.ObjectId };
@@ -26,7 +27,9 @@ const ProjectsPage: NextPage<ProjectsPageProps> = ({ projects, profile }) => {
           <div key={project._id} className="group bg-surface border border-primary rounded-lg shadow-lg">
             <div className="p-6">
               <h2 className="text-3xl font-black mb-2">{project.name}</h2>
-              <p className="text-text-secondary mb-4">{project.description}</p>
+              <p className="text-text-secondary mb-4 prose prose-invert max-w-none prose-p:my-2 prose-headings:my-3">
+                <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(project.description) }} />
+              </p>
               <div className="flex flex-wrap gap-2 mb-4 mt-4 pt-4 border-t border-gray-700">
                 {project.technologies.map((tech) => (
                   <span key={tech} className="bg-primary text-cyan-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">

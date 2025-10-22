@@ -10,11 +10,15 @@
     "tailwind:init": "tailwindcss init -p"
   },
   "dependencies": {
+    "@tiptap/extension-bubble-menu": "^3.7.2",
+    "@tiptap/react": "^3.7.2",
+    "@tiptap/starter-kit": "^3.7.2",
     "@types/cookie": "^0.6.0",
     "@types/mongoose": "^5.11.96",
     "@types/multer": "^2.0.0",
     "cloudinary": "^2.7.0",
     "cookie": "^1.0.2",
+    "isomorphic-dompurify": "^2.29.0",
     "jose": "^6.1.0",
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",
@@ -22,7 +26,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-icons": "^5.5.0",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

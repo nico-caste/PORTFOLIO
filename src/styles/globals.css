@@ -10,3 +10,16 @@
     @apply font-display font-bold;
   }
 }
+
+@layer components {
+  .tiptap-editor {
+    @apply bg-surface border border-primary rounded-lg min-h-[150px] p-4 focus:outline-none focus:border-accent;
+  }
+  .tiptap-editor p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #8A93A0; /* text-secondary */
+    pointer-events: none;
+    height: 0;
+  }
+}

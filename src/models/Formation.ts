@@ -5,7 +5,7 @@ export type FormationData = {
   institution: string;
   title: string;
   type: 'Certificación' | 'Carrera' | 'Curso';
-  startDate: string; // Usamos string para facilitar la serialización
+  startDate: string;
   endDate?: string;
   certificateUrl?: string;
   skills: string[];
